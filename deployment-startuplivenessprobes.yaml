@@ -1,0 +1,32 @@
+apiVersion: apps/v1 
+kind: Deployment 
+metadata: 
+  name: nginx-healthprobes
+  namespace: mynamespace  
+  labels:
+    app: nginx
+spec: 
+  replicas: 1
+  selector: 
+    matchLabels: 
+      app: nginx
+  template: 
+    metadata: 
+      labels: 
+        app: nginx 
+    spec: 
+      containers: 
+      - name: nginx 
+        image: nginx:1.25.4
+        ports: 
+        - containerPort: 80
+        livenessProbe:
+          httpGet:
+            path: /status/
+            port: 80
+        startupProbe:
+          httpGet:
+            path: /status/
+            port: 80
+          failureThreshold: 20
+          periodSeconds: 15
