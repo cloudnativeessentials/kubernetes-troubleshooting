@@ -1,0 +1,20 @@
+apiVersion: v1 
+kind: Pod 
+metadata: 
+  name: nginx-highmem
+  namespace: mynamespace
+  labels:
+    app: nginx  
+spec: 
+  containers: 
+  - name: nginx 
+    image: nginx:1.25.4
+    ports: 
+    - containerPort: 80
+    resources:
+      requests:
+        cpu: 200m
+        memory: 128Gi
+     limits:
+       cpu: 500m
+       memory: 256Gi
