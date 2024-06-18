@@ -54,6 +54,15 @@ spec:
           claimName: mysql-pv-claim
 ---
 apiVersion: v1
+kind: Secret
+metadata:
+  name: mysql-pass
+  namespace: wordpress
+type: Opaque
+data:
+  password: mypassword
+---
+apiVersion: v1
 kind: Service
 metadata:
   name: wordpress-mysql
