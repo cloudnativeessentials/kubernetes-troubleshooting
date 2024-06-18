@@ -7,7 +7,7 @@ metadata:
 apiVersion: v1 
 kind: Pod 
 metadata: 
-  name: memsstresslow 
+  name: memstresslow 
   namespace: mynamespace
   labels:
     app: stress  
@@ -15,7 +15,7 @@ spec:
   containers: 
   - name: stress 
     image: progrium/stress
-    command: ["stress", "--cpu", "1", "--io", "1", "--vm", "1", "--vm-bytes", "100M", "--timeout", "60s"]
+    command: ["stress", "--cpu", "1", "--io", "1", "--vm", "1", "--vm-bytes", "100M", "--timeout", "300s"]
     resources:
       requests:
         cpu: 1100m
@@ -23,3 +23,4 @@ spec:
       limits:
         cpu: 2000m
         memory: 256Mi
+  restartPolicy: Always
