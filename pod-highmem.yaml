@@ -1,3 +1,9 @@
+---
+apiVersion: v1 
+kind: Namespace
+metadata: 
+  name: mynamespace
+---
 apiVersion: v1 
 kind: Pod 
 metadata: 
@@ -8,7 +14,7 @@ metadata:
 spec: 
   containers: 
   - name: nginx 
-    image: nginx:1.25.4
+    image: nginx:1.27.0
     ports: 
     - containerPort: 80
     resources:
