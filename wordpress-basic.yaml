@@ -13,7 +13,7 @@ metadata:
     app: wordpress
 type: Opaque
 data:
-  password: mypassword
+  password: bXlwYXNzd29yZA==
 ---
 apiVersion: apps/v1
 kind: Deployment
