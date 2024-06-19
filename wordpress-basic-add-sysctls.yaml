@@ -132,10 +132,10 @@ spec:
         volumeMounts:
         - name: wordpress-persistent-storage
           mountPath: /var/www/html
-        securityContext:
-          sysctls:
-          - name: net.ipv4.ip_unprivileged_port_start
-            value: "80"
+      securityContext:
+        sysctls:
+        - name: net.ipv4.ip_unprivileged_port_start
+          value: "80"
       volumes:
       - name: wordpress-persistent-storage
         persistentVolumeClaim:
