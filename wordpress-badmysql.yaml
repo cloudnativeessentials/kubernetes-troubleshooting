@@ -12,8 +12,12 @@ metadata:
     app: wordpress-badmysql
 spec:
   containers:
-  - image: mysql:8.0
-    name: mysql
-  - image: wordpress:6.2.1-apache
-    name: wordpress
+  - name: mysql
+    image: mysql:8.0
+    securityContext:
+      allowPrivilegeEscalation: false
+  - name: wordpress
+    image: wordpress:6.2.1-apache
+    securityContext:
+      allowPrivilegeEscalation: false
   restartPolicy: Always
