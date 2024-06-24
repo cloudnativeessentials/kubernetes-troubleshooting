@@ -8,6 +8,7 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: wordpress-badmysql
+  name: wordpress
   labels:
     app: wordpress-badmysql
 spec:
