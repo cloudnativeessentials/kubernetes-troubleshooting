@@ -14,10 +14,6 @@ spec:
   containers:
   - name: mysql
     image: mysql:8.0
-    securityContext:
-      allowPrivilegeEscalation: false
   - name: wordpress
     image: wordpress:6.2.1-apache
-    securityContext:
-      allowPrivilegeEscalation: false
   restartPolicy: Always
