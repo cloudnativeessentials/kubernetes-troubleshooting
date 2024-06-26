@@ -26,6 +26,7 @@ When deploying a workload, there are occasions when the image is not accessible 
 
 - `ErrImagePull`
 - `ImagePullBackOff`
+
 #### Deploy 
 Use the following command to deploy a pod that will generate an Image Pull issue:
 
@@ -63,6 +64,26 @@ oc delete -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-
 ```
 
 ### 3. Pod Stuck Creating
+
+#### Overview
+A Pod may not get to a running state and be stalled at the `CreatingContainer` status. 
+`ContainerCreating` is different from the `Pending` status. 
+The `Pending` status usually means the pod has yet to be scheduled to a node while with a `CreatingContainer` state, the pod has been scheduled to a node and the kubelet is in the process of creating the container(s) for the pod.
+When a pod is stuck with a `CreatingContainer` state, the container may need something but is not available.
+
+#### Deploy
+
+Use the following command to deploy a pod that will generate a pod that is stuck with a `CreatingContainer` status:
+
+```shell
+oc apply -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-troubleshooting/main/pod-configmap-notexist.yaml
+```
+
+#### Inspect
+
+#### Remediate
+
+#### Cleanup
 
 ### 4. Debugging With Pod Logs
 
