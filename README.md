@@ -72,8 +72,7 @@ The `Pending` status usually means the pod has yet to be scheduled to a node whi
 When a pod is stuck with a `CreatingContainer` state, the container may need something but is not available.
 
 #### Deploy
-
-Use the following command to deploy a pod that will generate a pod that is stuck with a `CreatingContainer` status:
+Use the following command to deploy a pod that is stuck with a `CreatingContainer` status:
 
 ```shell
 oc apply -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-troubleshooting/main/pod-configmap-notexist.yaml
