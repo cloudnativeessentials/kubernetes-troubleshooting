@@ -119,7 +119,7 @@ The full details of eleveated capabilities is beyond the scope of this course, h
 
 Alternatively, you can do this via cli with a pre-updated manifest:
 ```shell
-oc apply -f ttps://raw.githubusercontent.com/cloudnativeessentials/kubernetes-troubleshooting/main/wordpress-basic-add-linuxcapability.yaml
+oc apply -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-troubleshooting/main/wordpress-basic-add-linuxcapability.yaml
 ```
 You can see that this does not seem to fix the issue, and now we have a new message, that we are violating a security policy, and that we are not allowed to arbitrarily add capabilities to our containers. This another layer of security involved. Instead we can add a sysctl entry that tells the base OS that this is not a privileged port by using the following:
 
@@ -178,7 +178,7 @@ The kubernetes scheduler will find a node in the cluster for each pod that needs
 - `PodToleratesNodeTaints` - Certain nodes are set with taints to prevent resources from being scheduled there. A pod must specifically tolerate this to allow scheduling. Most frequently used to prevent workloads from being scheduled to control plane nodes.
 
 #### Deploy
-Use the following command to deploy some example resource:
+Use the following command to deploy some example resource (you might have the highmem manifest blocked due to quota):
 
 ```shell
 oc apply -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-troubleshooting/main/pod-pvc-notexist.yaml
@@ -192,12 +192,16 @@ View the pods in the console, and you will see that the Status is stuck in `Pend
 #### Remediate
 For the `nginx` pod, we can see that we have the following message about a missing pvc: `persistentvolumeclaim "mypvc" not found`. We can fix this by creating the pvc with this name, in the same namespace.<br>
 
-For the `nginx-highmem` pod, we can see that we do not have sufficient memory available to schedule the pod based on its Request of `128Gi`. Tuning pod requests is an important task for operations and development to work hand in hand on, as if we create requests that are higher than we need, we will reserve space that could be used otherwise and prevent efficient scheduling.
+For the `nginx-highmem` pod, we can see that we do not have sufficient memory available to schedule the pod based on its Request of `128Gi`. Tuning pod requests is an important task for operations and development to work hand in hand on, as if we create requests that are higher than we need, we will reserve space that could be used otherwise and prevent efficient scheduling.<br>
+
+For the `stress` pod, we can see that it is continuously getting OOM killed. This is because the configured memory limit is being reached. If this is normal behavior, please update the requests and limits for the application.
 
 #### Cleanup
 Clean up the resources with the following command:
 ```shell
 oc delete -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-troubleshooting/main/pod-pvc-notexist.yaml
+oc delete -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-troubleshooting/main/pod-memstresshigh.yaml
+oc delete -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-troubleshooting/main/pod-highmem.yaml
 ```
 
 ### 7. Storage issues
@@ -211,7 +215,6 @@ Use the following command to deploy some example resource:
 ```shell
 oc apply -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-troubleshooting/main/pod-sc-notexist.yaml
 oc apply -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-troubleshooting/main/pod-pvc-notexist.yaml
-oc apply -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-troubleshooting/main/pod-pv-notexist.yaml
 ```
 #### Inspect
 You can now see tha the three new pods have started and are stuck in Pending state. If we view the conditions, we can see the different error messages for each workload.
@@ -219,9 +222,9 @@ You can now see tha the three new pods have started and are stuck in Pending sta
 #### Remediate
 - For `nginx-scnotexist` we can see that there is an unbound PVC. What this means is that a `PersistentVolumeClaim` exists, but cannot be fulfilled. The PVC itself shows `storageclass.storage.k8s.io "veryfaststorage" not found`. This means that an incorrect StorageClass was configured in the application. The fix for this is to use an appropriate StorageClass per guidance from the Container Platform team, and ensure that the application owners update their deployments. This is not something that is really resolved live, and also usually only a problem on initial deployment of a new application.
 - For `nginx-nopvc` we see that similar to a previous exercise, that no PVC is defined with the application, even though it tries to mount a persistent volume. The resolution for this is to either remove the persistent volume in the application, or specify a PVC with an appropriate storageclass. This is also generally a first deploy issue only.
-- For `nginx-nopv` we see that we have a PVC defined with an appropriate storageclass, but that we are waiting for a volume to be created. This is something that is handled via the underlying storage subsystem abstracted by the storageclass, and if this type of symptom occurs, we need to discuss with the container platform team to investigate the CSI plugins.
 #### Cleanup
 Clean up the resources with the following command:
 ```shell
 oc delete -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-troubleshooting/main/pod-pvc-notexist.yaml
+oc delete -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-troubleshooting/main/pod-sc-notexist.yaml
 ```
