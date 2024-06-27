@@ -7,11 +7,10 @@ Kubernetes troubleshooting includes examples of Kubernetes resources in error an
 - [Prerequisites](#1-prerequisites)
 - [Image Pull Errors](#2-image-pull-errors)
 - [Pod Stuck Creating](#3-pod-stuck-creating)
-- [Using logs to debug](#4-debugging-with-pod-logs)
-- [Scheduling](#5-scheduling)
-- [Storage issues](#6-storage)
-- [Database Problems](#7-database-issues)
-- [Cleanup](#8-cleanup)
+- [Using logs to debug an app](#4-app-debugging-with-pod-logs)
+- [Using logs to debug a database](#4-app-debugging-with-pod-logs)
+- [Scheduling](#6-scheduling-issues)
+- [Storage issues](#7-storage-issues)
 
 
 ### 1. Prerequisites
@@ -35,7 +34,7 @@ oc apply -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-t
 ```
 
 #### Inspect 
-View the instance of the pod that was created and see which error/cause we have in this case.
+View the instance of the pod that was created and see which error/cause we have in this case. First check the pod status and conditions. If nothing obvious, check the events.
 
 Typical causes of this issue:
 - Is the container image correct in the manifest?
@@ -79,17 +78,141 @@ oc apply -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-t
 ```
 
 #### Inspect
+View the instance of the pod that was created and see which error/cause we have in this case. First check the pod status and conditions. If nothing obvious, check the events.
+
+Typical causes of this issue are missing dependent resources, such as secrets, volumes, or configmaps.
 
 #### Remediate
 
+In this instance we have the following error message: `configmap "mmconfigymap" not found`. Remembering that configmaps are namespaced objects, let us validate whether there is a configmap with a different name that exists for this application, or whether the configmap does not exist at all. In our case, the configmap does not exist. So if we create an empty configmap, it will mount successfully and the pod will run.
+
 #### Cleanup
+Clean up the resources with the following command:
+```shell
+oc delete -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-troubleshooting/main/pod-configmap-notexist.yaml
+```
+### 4. App Debugging With Pod Logs
 
-### 4. Debugging With Pod Logs
+#### Overview
+Take an example application where we have a frontend and backend service. We will use wordpress here, as this represents this architecture. We will often see pods that are scheduled, begin running, but never successfully start. If we have a pod that ends up in `CrashLoopBackOff` or `Error` state, this usually indicates an application issue, though it can also be due to an improperly configured readiness or liveliness probe.
 
-### 5. Scheduling
+#### Deploy
+Use the following command to deploy the wordpress application:
 
-### 6. Storage
+```shell
+oc apply -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-troubleshooting/main/wordpress-basic.yaml
+```
 
-### 7. Database issues
+#### Inspect
+<p>View the deployed wordpress application in the console. You will see that the wordpress pod is continuously restarting. Viewing the status, conditions, and events do not provide any useful information. The next step here is to then view the application logs themselves to see why the pod is restarting/crashing.
 
-### 8. Cleanup
+If we view the pod logs in the console, we can see that there is a `Permission denied` error when trying to bind to a privileged port. In OpenShift, non root containers are enforced, so similarly to a non root process, it cannot bind to a low port.
+
+#### Remediate
+The full details of eleveated capabilities is beyond the scope of this course, however there is a capability `CAP_NET_BIND_SERVICE` that we can attach to our pod, that should allow us to bind to privileged ports. Let us try and add the following block to our Deployment manifest for the crashing service:
+
+```shell        
+        securityContext:
+          capabilities:
+            add: ["CAP_NET_BIND_SERVICE"]
+```
+
+Alternatively, you can do this via cli with a pre-updated manifest:
+```shell
+oc apply -f ttps://raw.githubusercontent.com/cloudnativeessentials/kubernetes-troubleshooting/main/wordpress-basic-add-linuxcapability.yaml
+```
+You can see that this does not seem to fix the issue, and now we have a new message, that we are violating a security policy, and that we are not allowed to arbitrarily add capabilities to our containers. This another layer of security involved. Instead we can add a sysctl entry that tells the base OS that this is not a privileged port by using the following:
+
+```shell
+oc apply -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-troubleshooting/main/wordpress-basic-add-sysctls.yaml
+```
+
+#### Cleanup
+Clean up the resources with the following command:
+```shell
+oc delete -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-troubleshooting/main/wordpress-basic-add-sysctls.yaml
+```
+
+### 5. Database debugging with pod logs
+
+#### Overview
+Now let's deploy wordpress in a similar way. In this case we will include the frontend and backend in a single pod. This will show us how one container of a pod having issues starting, can fail the whole pod.
+
+#### Deploy
+Use the following command to deploy a multi container wordpress pod:
+```shell
+oc apply -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-troubleshooting/main/wordpress-badmysql.yaml
+```
+
+#### Inspect
+Viewing the pod details, you can see that it is restarting, and in a `CrashLoopBackoff`. Since there is no indication of the cause in these details, we will need to dig into the container logs. Looking in the container logs, we can see that we are missing a required paramter for the database to properly start.
+
+#### Remediate
+Use the following commands to delete the bad pod definition, and re-deploy with the proper variable set:
+```shell
+oc delete -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-troubleshooting/main/wordpress-badmysql.yaml
+oc apply -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-troubleshooting/main/wordpress-badmysql-fix.yaml
+```
+
+#### Cleanup
+Clean up the resources with the following command:
+```shell
+oc delete -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-troubleshooting/main/wordpress-badmysql-fix.yaml
+```
+
+### 6. Scheduling issues
+
+#### Overview
+The kubernetes scheduler will find a node in the cluster for each pod that needs to run.  Nodes are filtered out if they do not meet the needs of the pod. The two most common being:
+
+- `PodFitsResources` - Is there a node where the CPU and Memory requirements set in the spec are met.
+- `PodToleratesNodeTaints` - Certain nodes are set with taints to prevent resources from being scheduled there. A pod must specifically tolerate this to allow scheduling. Most frequently used to prevent workloads from being scheduled to control plane nodes.
+
+#### Deploy
+Use the following command to deploy some example resource:
+
+```shell
+oc apply -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-troubleshooting/main/pod-pvc-notexist.yaml
+oc apply -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-troubleshooting/main/pod-highmem.yaml
+oc apply -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-troubleshooting/main/pod-memstresshigh.yaml
+```
+
+#### Inspect
+View the pods in the console, and you will see that the Status is stuck in `Pending`. Clicking on the `Pending` link or viewing the conditions will show the reason why it is in this state.
+
+#### Remediate
+For the `nginx` pod, we can see that we have the following message about a missing pvc: `persistentvolumeclaim "mypvc" not found`. We can fix this by creating the pvc with this name, in the same namespace.<br>
+
+For the `nginx-highmem` pod, we can see that we do not have sufficient memory available to schedule the pod based on its Request of `128Gi`. Tuning pod requests is an important task for operations and development to work hand in hand on, as if we create requests that are higher than we need, we will reserve space that could be used otherwise and prevent efficient scheduling.
+
+#### Cleanup
+Clean up the resources with the following command:
+```shell
+oc delete -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-troubleshooting/main/pod-pvc-notexist.yaml
+```
+
+### 7. Storage issues
+
+#### Overview
+When using persistent storage, you can come across a couple of different scenarios. In many cases, this is either going to be an underlying storage problem, or incorrect configurations that need to be rectified. Let's discuss a couple of situations that might occur.
+
+#### Deploy
+Use the following command to deploy some example resource:
+
+```shell
+oc apply -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-troubleshooting/main/pod-sc-notexist.yaml
+oc apply -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-troubleshooting/main/pod-pvc-notexist.yaml
+oc apply -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-troubleshooting/main/pod-pv-notexist.yaml
+```
+#### Inspect
+You can now see tha the three new pods have started and are stuck in Pending state. If we view the conditions, we can see the different error messages for each workload.
+
+#### Remediate
+- For `nginx-scnotexist` we can see that there is an unbound PVC. What this means is that a `PersistentVolumeClaim` exists, but cannot be fulfilled. The PVC itself shows `storageclass.storage.k8s.io "veryfaststorage" not found`. This means that an incorrect StorageClass was configured in the application. The fix for this is to use an appropriate StorageClass per guidance from the Container Platform team, and ensure that the application owners update their deployments. This is not something that is really resolved live, and also usually only a problem on initial deployment of a new application.
+- For `nginx-nopvc` we see that similar to a previous exercise, that no PVC is defined with the application, even though it tries to mount a persistent volume. The resolution for this is to either remove the persistent volume in the application, or specify a PVC with an appropriate storageclass. This is also generally a first deploy issue only.
+- For `nginx-nopv` we see that we have a PVC defined with an appropriate storageclass, but that we are waiting for a volume to be created. This is something that is handled via the underlying storage subsystem abstracted by the storageclass, and if this type of symptom occurs, we need to discuss with the container platform team to investigate the CSI plugins.
+#### Cleanup
+Clean up the resources with the following command:
+```shell
+oc delete -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-troubleshooting/main/pod-pvc-notexist.yaml
+```

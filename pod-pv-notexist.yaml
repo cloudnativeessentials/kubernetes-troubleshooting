@@ -16,10 +16,10 @@ provisioner: csi-driver.bad-csi-driver.example
 apiVersion: v1 
 kind: Pod 
 metadata: 
-  name: nginx 
+  name: nginx-nopv
   namespace: mynamespace
   labels:
-    app: nginx  
+    app: nginx-nopv
 spec: 
   containers: 
   - name: nginx 
@@ -32,12 +32,12 @@ spec:
   volumes:
   - name: config
     persistentVolumeClaim:
-      claimName: mypvc
+      claimName: pvcforme
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mypvc
+  name: pvcforme
   namespace: mynamespace
 spec:
   storageClassName: veryfaststorage

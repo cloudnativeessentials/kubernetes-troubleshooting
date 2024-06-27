@@ -7,10 +7,10 @@ metadata:
 apiVersion: v1 
 kind: Pod 
 metadata: 
-  name: nginx 
+  name: nginx-nopvc
   namespace: mynamespace
   labels:
-    app: nginx  
+    app: nginx-nopvc
 spec: 
   containers: 
   - name: nginx 

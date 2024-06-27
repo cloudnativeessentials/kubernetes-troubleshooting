@@ -7,10 +7,10 @@ metadata:
 apiVersion: v1 
 kind: Pod 
 metadata: 
-  name: nginx 
+  name: nginx-scnotexist
   namespace: mynamespace
   labels:
-    app: nginx  
+    app: nginx-scnotexist
 spec: 
   containers: 
   - name: nginx 
