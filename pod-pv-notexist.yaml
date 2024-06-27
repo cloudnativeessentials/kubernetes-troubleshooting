@@ -15,7 +15,7 @@ metadata:
 spec: 
   containers: 
   - name: nginx 
-    image: quay.io/nginx/nginx-unprivleged:stable-alpine
+    image: quay.io/nginx/nginx-unprivileged:stable-alpine
     ports: 
     - containerPort: 80
     volumeMounts:
