@@ -7,6 +7,6 @@ metadata:
 spec: 
   containers: 
   - name: nginx 
-    image: nginxoops:1.27.0
+    image: quay.io/nginx/nginx-unprivlegedoops:stable-alpine
     ports: 
     - containerPort: 80

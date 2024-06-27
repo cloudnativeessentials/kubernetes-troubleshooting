@@ -45,14 +45,14 @@ Typical causes of this issue:
 In this case we have an Access Denied, error. One important thing to note, is that some registries will provide this response when an image does not exist. So it still makes sense to verify the defined image first.
 
 We have the following in the manifest:
-- `image: nginxoops:1.27.0`
+- `image: quay.io/nginx/nginx-unprivilegedoops:stable-alpine`
 
 So it seems like there is an incorrect image definition in the manifest. Most likely this is an issue created in the CICD pipelines and either the wrong image name is used altogether, or a tag was updated but the new image is not available.
 
 #### Remediate
 
 In our case, the image itself is just incorrect. We can fix this by editing the yaml manifest, and changing the image definition to:
-- `image: nginx:1.27.0`
+- `image: quay.io/nginx/nginx-unprivileged:stable-alpine`
 
 Note that in most environments, this will need to be done via CICD, or the next deployment will overwrite this manifest.
 
@@ -149,6 +149,15 @@ Viewing the pod details, you can see that it is restarting, and in a `CrashLoopB
 
 #### Remediate
 Use the following commands to delete the bad pod definition, and re-deploy with the proper variable set:
+```shell
+spec:
+  containers:
+  - name: mysql
+    image: mysql:8.0
+    env:
+    - name: MYSQL_ROOT_PASSWORD
+      value: "mypassword"
+```
 ```shell
 oc delete -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-troubleshooting/main/wordpress-badmysql.yaml
 oc apply -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-troubleshooting/main/wordpress-badmysql-fix.yaml
