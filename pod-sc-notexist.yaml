@@ -1,14 +1,7 @@
----
-apiVersion: v1 
-kind: Namespace
-metadata: 
-  name: mynamespace
----
 apiVersion: v1 
 kind: Pod 
 metadata: 
   name: nginx-scnotexist
-  namespace: mynamespace
   labels:
     app: nginx-scnotexist
 spec: 
@@ -29,7 +22,6 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: mypvc
-  namespace: mynamespace
 spec:
   storageClassName: veryfaststorage
   accessModes:
