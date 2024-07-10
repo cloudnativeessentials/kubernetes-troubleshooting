@@ -16,6 +16,6 @@ spec:
     spec: 
       containers: 
       - name: nginx 
-        image: nginxoops:1.27.0
+        image: nginx-unprivileged-oops:stable-alpine
         ports: 
         - containerPort: 80
