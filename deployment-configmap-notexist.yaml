@@ -1,0 +1,28 @@
+apiVersion: apps/v1 
+kind: Deployment 
+metadata: 
+  name: nginx-basic
+  labels:
+    app: nginx
+spec: 
+  replicas: 1
+  selector: 
+    matchLabels: 
+      app: nginx
+  template: 
+    metadata: 
+      labels: 
+        app: nginx 
+    spec: 
+      containers: 
+      - name: nginx 
+        image: quay.io/nginx/nginx-unprivileged:stable-alpine
+        ports: 
+        - containerPort: 80
+        volumeMounts:
+        - name: config
+          mountPath: "/usr/share/nginx/html"
+      volumes:
+      - name: config
+        configMap:
+          name: myconfigmap
