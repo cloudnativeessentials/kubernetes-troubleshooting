@@ -1,21 +1,21 @@
 apiVersion: apps/v1 
 kind: Deployment 
 metadata: 
-  name: nginx-basic
+  name: nginx-no-configmap
   labels:
-    app: nginx
+    app: nginx-no-configmap
 spec: 
   replicas: 1
   selector: 
     matchLabels: 
-      app: nginx
+      app: nginx-no-configmap
   template: 
     metadata: 
       labels: 
-        app: nginx 
+        app: nginx-no-configmap 
     spec: 
       containers: 
-      - name: nginx 
+      - name: nginx-no-configmap 
         image: quay.io/nginx/nginx-unprivileged:stable-alpine
         ports: 
         - containerPort: 80
