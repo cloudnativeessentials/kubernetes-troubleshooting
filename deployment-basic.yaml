@@ -16,6 +16,6 @@ spec:
     spec: 
       containers: 
       - name: nginx 
-        image: nginx:1.27.0
+        image: quay.io/nginx/nginx-unprivileged:stable-alpine
         ports: 
         - containerPort: 80
