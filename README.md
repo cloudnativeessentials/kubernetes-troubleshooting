@@ -96,6 +96,7 @@ oc create configmap myconfigmap --from-literal=key=value
 Clean up the resources with the following command:
 ```shell
 oc delete -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-troubleshooting/main/deployment-configmap-notexist.yaml
+oc delete configmap myconfigmap
 ```
 ### 4. App Debugging With Pod Logs
 
