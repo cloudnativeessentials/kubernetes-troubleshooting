@@ -3,19 +3,19 @@ kind: Deployment
 metadata: 
   name: nginx-badimage
   labels:
-    app: nginx
+    app: nginx-badimage
 spec: 
   replicas: 1
   selector: 
     matchLabels: 
-      app: nginx
+      app: nginx-badimage
   template: 
     metadata: 
       labels:
-        app: nginx 
+        app: nginx-badimage 
     spec: 
       containers: 
-      - name: nginx 
+      - name: nginx-badimage 
         image: quay.io/nginx/nginx-unprivilegedoops:stable-alpine
         ports: 
         - containerPort: 80
