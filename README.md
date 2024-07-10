@@ -27,10 +27,10 @@ When deploying a workload, there are occasions when the image is not accessible 
 - `ImagePullBackOff`
 
 #### Deploy 
-Use the following command to deploy a pod that will generate an Image Pull issue:
+Use the following command to create a deployment with a pod that will generate an Image Pull issue:
 
 ```shell
-oc apply -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-troubleshooting/main/pod-badimage.yaml
+oc apply -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-troubleshooting/main/deployment-imagepullbackoff.yaml
 ```
 
 #### Inspect 
@@ -51,7 +51,7 @@ So it seems like there is an incorrect image definition in the manifest. Most li
 
 #### Remediate
 
-In our case, the image itself is just incorrect. We can fix this by editing the yaml manifest, and changing the image definition to:
+In our case, the image itself is just incorrect. We can fix this by editing the yaml manifest of the deployment, and changing the image definition to:
 - `image: quay.io/nginx/nginx-unprivileged:stable-alpine`
 
 Note that in most environments, this will need to be done via CICD, or the next deployment will overwrite this manifest.
@@ -59,7 +59,7 @@ Note that in most environments, this will need to be done via CICD, or the next 
 #### Cleanup
 Clean up the resources with the following command:
 ```shell
-oc delete -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-troubleshooting/main/pod-badimage.yaml
+oc delete -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-troubleshooting/main/deployment-imagepullbackoff.yaml
 ```
 
 ### 3. Pod Stuck Creating
