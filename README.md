@@ -89,7 +89,7 @@ In this instance we have the following error message: `configmap "mmconfigymap" 
 #### Cleanup
 Clean up the resources with the following command:
 ```shell
-oc delete -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-troubleshooting/main/pod-configmap-notexist.yaml
+oc delete -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-troubleshooting/main/deployment-configmap-notexist.yaml
 ```
 ### 4. App Debugging With Pod Logs
 
