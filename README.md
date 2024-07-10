@@ -81,10 +81,16 @@ oc apply -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-t
 View the instance of the pod that was created and see which error/cause we have in this case. First check the pod status and conditions. If nothing obvious, check the events.
 
 Typical causes of this issue are missing dependent resources, such as secrets, volumes, or configmaps.
+In this case, the pod mounts a config map in the container.
 
 #### Remediate
 
-In this instance we have the following error message: `configmap "mmconfigymap" not found`. Remembering that configmaps are namespaced objects, let us validate whether there is a configmap with a different name that exists for this application, or whether the configmap does not exist at all. In our case, the configmap does not exist. So if we create an empty configmap, it will mount successfully and the pod will run.
+In this instance we have the following error message: `configmap "mmconfigymap" not found`. Remembering that configmaps are namespaced objects, let us validate whether there is a configmap with a different name that exists for this application, or whether the configmap does not exist at all with `oc get configmap`. In our case, the configmap does not exist. So if we create a configmap, it will mount successfully and the pod will run.
+
+Use the following command to create a config map:
+```shell
+oc create configmap myconfigmap --from-literal=key=value
+```
 
 #### Cleanup
 Clean up the resources with the following command:
