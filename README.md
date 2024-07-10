@@ -125,10 +125,13 @@ The full details of eleveated capabilities is beyond the scope of this course, h
 ```
 
 Alternatively, you can do this via cli with a pre-updated manifest:
+
 ```shell
 oc apply -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-troubleshooting/main/wordpress-basic-add-linuxcapability.yaml
 ```
-You can see that this does not seem to fix the issue, and now we have a new message, that we are violating a security policy, and that we are not allowed to arbitrarily add capabilities to our containers. This another layer of security involved. Instead we can add a sysctl entry that tells the base OS that this is not a privileged port by using the following:
+
+You can see there is a warning that we are violating a security policy and that we are not allowed to arbitrarily add capabilities to our containers, the request to update the wordpress application may not be accepted.
+This is another layer of security involved. Instead we can add a sysctl entry that tells the base OS that this is not a privileged port by using the following:
 
 ```shell
 oc apply -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-troubleshooting/main/wordpress-basic-add-sysctls.yaml
