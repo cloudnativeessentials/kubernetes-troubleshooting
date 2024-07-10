@@ -131,7 +131,16 @@ oc apply -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-t
 ```
 
 You can see there is a warning that we are violating a security policy and that we are not allowed to arbitrarily add capabilities to our containers, the request to update the wordpress application may not be accepted.
-This is another layer of security involved. Instead we can add a sysctl entry that tells the base OS that this is not a privileged port by using the following:
+This is another layer of security involved. Instead we can add a sysctl entry that tells the base OS that this is not a privileged port by adding the following to our Deployment manifest for the crashing wordpress pod.
+
+```shell
+      securityContext:
+        sysctls:
+        - name: net.ipv4.ip_unprivileged_port_start
+          value: "80"
+```
+
+Alternatively, you can do this via cli with a pre-updated manifest:
 
 ```shell
 oc apply -f https://raw.githubusercontent.com/cloudnativeessentials/kubernetes-troubleshooting/main/wordpress-basic-add-sysctls.yaml
